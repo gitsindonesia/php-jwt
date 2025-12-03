@@ -31,6 +31,8 @@ class JWT
     private const ASN1_SEQUENCE = 0x10;
     private const ASN1_BIT_STRING = 0x03;
 
+    private const RSA_KEY_MIN_LENGTH=2048;
+
     /**
      * When checking nbf, iat or expiration times,
      * we want to provide some extra leeway time to
@@ -196,7 +198,7 @@ class JWT
      * Converts and signs a PHP array into a JWT string.
      *
      * @param array<mixed>          $payload PHP array
-     * @param string|resource|OpenSSLAsymmetricKey|OpenSSLCertificate $key The secret key.
+     * @param string|OpenSSLAsymmetricKey|OpenSSLCertificate $key The secret key.
      * @param string                $alg     Supported algorithms are 'ES384','ES256', 'ES256K', 'HS256',
      *                                       'HS384', 'HS512', 'RS256', 'RS384', and 'RS512'
      * @param string                $keyId
@@ -237,7 +239,7 @@ class JWT
      * Sign a string with a given key and algorithm.
      *
      * @param string $msg  The message to sign
-     * @param string|resource|OpenSSLAsymmetricKey|OpenSSLCertificate  $key  The secret key.
+     * @param string|OpenSSLAsymmetricKey|OpenSSLCertificate  $key  The secret key.
      * @param string $alg  Supported algorithms are 'EdDSA', 'ES384', 'ES256', 'ES256K', 'HS256',
      *                    'HS384', 'HS512', 'RS256', 'RS384', and 'RS512'
      *
@@ -263,13 +265,13 @@ class JWT
                 return \hash_hmac($algorithm, $msg, $key, true);
             case 'openssl':
                 $signature = '';
-                if (!\is_resource($key) && !openssl_pkey_get_private($key)) {
+                if (!$key = openssl_pkey_get_private($key)) {
                     throw new DomainException('OpenSSL unable to validate key');
                 }
                 if (str_starts_with($algorithm, 'RS')) {
                     self::validateRsaKeyLength($key);
                 }
-                $success = \openssl_sign($msg, $signature, $key, $algorithm); // @phpstan-ignore-line
+                $success = \openssl_sign($msg, $signature, $key, $algorithm);
                 if (!$success) {
                     throw new DomainException('OpenSSL unable to sign data');
                 }
@@ -308,7 +310,7 @@ class JWT
      *
      * @param string $msg         The original message (header and body)
      * @param string $signature   The original signature
-     * @param string|resource|OpenSSLAsymmetricKey|OpenSSLCertificate  $keyMaterial For Ed*, ES*, HS*, a string key works. for RS*, must be an instance of OpenSSLAsymmetricKey
+     * @param string|OpenSSLAsymmetricKey|OpenSSLCertificate  $keyMaterial For Ed*, ES*, HS*, a string key works. for RS*, must be an instance of OpenSSLAsymmetricKey
      * @param string $alg         The algorithm
      *
      * @return bool
@@ -329,9 +331,12 @@ class JWT
         switch ($function) {
             case 'openssl':
                 if (str_starts_with($algorithm, 'RS')) {
-                    self::validateRsaKeyLength($keyMaterial);
+                    if (!$key = openssl_pkey_get_private($keyMaterial)) {
+                        throw new DomainException('OpenSSL unable to validate key');
+                    }
+                    self::validateRsaKeyLength($key);
                 }
-                $success = \openssl_verify($msg, $signature, $keyMaterial, $algorithm); // @phpstan-ignore-line
+                $success = \openssl_verify($msg, $signature, $keyMaterial, $algorithm);
                 if ($success === 1) {
                     return true;
                 }
@@ -704,16 +709,15 @@ class JWT
     /**
      * Validate RSA key length
      *
-     * @param OpenSSLAsymmetricKey|OpenSSLCertificate $key RSA key material
-     *
+     * @param OpenSSLAsymmetricKey $key RSA key material
      * @throws DomainException Provided key is too short
      */
-    private static function validateRsaKeyLength(OpenSSLAsymmetricKey|OpenSSLCertificate $key): void
+    private static function validateRsaKeyLength(#[\SensitiveParameter] OpenSSLAsymmetricKey $key): void
     {
-        $keyDetails = openssl_pkey_get_details(openssl_pkey_get_private($key));
-        $keyLength = $keyDetails['bits'];
-        $minKeyLength = 2048;
-        if ($keyLength < $minKeyLength) {
+        if (!$keyDetails = openssl_pkey_get_details($key)) {
+            throw new DomainException('Unable to validate key');
+        }
+        if ($keyDetails['bits'] < self::RSA_KEY_MIN_LENGTH) {
             throw new DomainException('Provided key is too short');
         }
     }
