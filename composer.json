@@ -6,6 +6,9 @@
         "php",
         "jwt"
     ],
+    "replace": {
+        "firebase/php-jwt": "*"
+    },
     "authors": [
         {
             "name": "MuhamadAdrian",
