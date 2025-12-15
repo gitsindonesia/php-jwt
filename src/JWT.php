@@ -108,10 +108,26 @@ class JWT
             throw new UnexpectedValueException('Algorithm not supported');
         }
 
+        list(, $keyType) = static::$supported_algs[$header->alg];
+
         list($keyMaterial, $algorithm) = self::getKeyMaterialAndAlgorithm(
             $keyOrKeyArray,
             empty($header->kid) ? null : $header->kid
         );
+
+        if ($keyType === 'openssl') {
+            if (
+                !\is_resource($keyOrKeyArray) &&
+                !($keyOrKeyArray instanceof \OpenSSLAsymmetricKey) &&
+                !(\is_array($keyOrKeyArray))
+            ) {
+                throw new UnexpectedValueException('Invalid key type for this algorithm');
+            }
+        }
+
+        if ($keyType === 'hash_hmac' && !\is_string($keyOrKeyArray)) {
+            throw new UnexpectedValueException('Invalid key type for this algorithm');
+        }
 
         if (empty($algorithm)) {
             // Use deprecated "allowed_algs" to determine if the algorithm is supported.
