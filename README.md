@@ -1,13 +1,16 @@
-![Build Status](https://github.com/firebase/php-jwt/actions/workflows/tests.yml/badge.svg)
-[![Latest Stable Version](https://poser.pugx.org/firebase/php-jwt/v/stable)](https://packagist.org/packages/firebase/php-jwt)
-[![Total Downloads](https://poser.pugx.org/firebase/php-jwt/downloads)](https://packagist.org/packages/firebase/php-jwt)
-[![License](https://poser.pugx.org/firebase/php-jwt/license)](https://packagist.org/packages/firebase/php-jwt)
+![Build Status](https://github.com/gitsindonesia/php-jwt/actions/workflows/tests.yml/badge.svg)
+[![Latest Stable Version](https://poser.pugx.org/gitsindonesia/php-jwt/v/stable)](https://packagist.org/packages/gitsindonesia/php-jwt)
+[![Total Downloads](https://poser.pugx.org/gitsindonesia/php-jwt/downloads)](https://packagist.org/packages/gitsindonesia/php-jwt)
+[![License](https://poser.pugx.org/gitsindonesia/php-jwt/license)](https://packagist.org/packages/gitsindonesia/php-jwt)
+
 
 PHP-JWT
 =======
+Forked from firebase/php-jwt to include patches for version 5.5.1.
+
 A simple library to encode and decode JSON Web Tokens (JWT) in PHP, conforming to [RFC 7519](https://tools.ietf.org/html/rfc7519).
 
-Installation
+Installation ( Original firebase/php-jwt documentation )
 ------------
 
 Use composer to manage your dependencies and download PHP-JWT:
