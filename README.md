@@ -4,13 +4,61 @@
 [![License](https://poser.pugx.org/gitsindonesia/php-jwt/license)](https://packagist.org/packages/gitsindonesia/php-jwt)
 
 
-PHP-JWT
+PHP-JWT ( Forked from firebase/php-jwt to include patches for version 5.5.1 )
 =======
 Forked from firebase/php-jwt to include patches for version 5.5.1.
 
 A simple library to encode and decode JSON Web Tokens (JWT) in PHP, conforming to [RFC 7519](https://tools.ietf.org/html/rfc7519).
 
-Installation ( Original firebase/php-jwt documentation )
+# PHP-JWT (GITS Indonesia Patched Version)
+
+### ⚠️ Security Patch for Version 5.5.1
+This repository is a fork of `firebase/php-jwt` specifically providing a **security-patched version** of the 5.5.1 release.
+
+## Why is this Fork Necessary?
+
+Many legacy Laravel projects or those utilizing **Laravel Passport (v7 and below)** have dependency constraints where `firebase/php-jwt` is locked to version `^5.0`. 
+
+Since official security fixes are primarily released for version `6.x` and above, these projects often remain flagged as **vulnerable** during security audits (e.g., via `composer audit`), yet they cannot upgrade to version 6.x due to strict dependency conflicts with other packages.
+
+**This fork allows you to:**
+1. **Fix Vulnerabilities:** Stay secure while remaining on the 5.x version line.
+2. **Avoid Dependency Conflicts:** Fully compatible with Laravel Passport or Google API Client that requires `firebase/php-jwt: ~5.0`.
+3. **Zero Code Changes:** Uses the original `Firebase\JWT` namespace, meaning no changes are required in your existing application code.
+
+---
+
+## Installation ( Patched Version 5.5.1 )
+
+Since this package is published on **Packagist**, you can install it directly without additional configuration.
+
+### 1. Install the Patched Version
+Run the following command to replace the original library with the GITS patched version:
+
+```bash
+composer require gitsindonesia/php-jwt:5.5.1-p1
+```
+
+### 2. Verification
+To ensure the original `firebase/php-jwt` has been successfully replaced by this fork, run:
+
+```bash
+composer show firebase/php-jwt
+```
+
+The output should indicate that the package is being replaced by `gitsindonesia/php-jwt`.
+
+Technical Details
+-----------
+- Base Version: 5.5.1
+- Patch Version: 5.5.1-p1
+- Namespace: Firebase\JWT (Identical to original)
+- License: BSD-3-Clause (Identical to original)
+- Compatibility: Tested with Laravel Passport (v7) and Google API PHP Client.
+
+---
+
+Installation ( Please refer to original firebase/php-jwt documentation )
 ------------
 
 Use composer to manage your dependencies and download PHP-JWT:
